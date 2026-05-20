@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarketLens — B2B Marketing Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: #2a2a2a;
+  --border-light: #333;
+  --text: #f0ede6;
+  --text-mid: #888;
+  --text-dim: #555;
+  --accent: #c8f060;
+  --accent-dim: #8aaa3a;
+  --red: #ff5c5c;
+  --radius: 8px;
+  --mono: 'DM Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --serif: 'Libre Baskerville', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--display); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+header {
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { display: flex; align-items: center; gap: .75rem; }
+.logo-mark { width: 30px; height: 30px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #0d0d0d; }
+.logo-text { font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+.logo-sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: .1em; text-transform: uppercase; }
+.badge { font-family: var(--mono); font-size: 10px; color: var(--accent); border: 1px solid var(--accent-dim); padding: .2rem .6rem; border-radius: 20px; letter-spacing: .06em; }
+
+main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 61px); }
+
+/* LEFT */
+.left-panel { padding: 2rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+.panel-title { font-size: 10px; font-family: var(--mono); color: var(--text-dim); letter-spacing: .12em; text-transform: uppercase; }
+.hero-text { font-size: 24px; font-weight: 800; line-height: 1.15; letter-spacing: -.03em; }
+.hero-text span { color: var(--accent); font-style: italic; font-family: var(--serif); font-weight: 400; }
+
+/* PROFILE SLOTS */
+.slots { display: flex; flex-direction: column; gap: .75rem; }
+
+.slot {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.slot.has-content { border-color: var(--accent-dim); }
+
+.slot-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .6rem .85rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.slot-left { display: flex; align-items: center; gap: .6rem; }
+
+.slot-source {
+  display: flex; gap: .3rem;
+}
+
+.source-pill {
+  font-family: var(--mono); font-size: 9px; padding: .15rem .45rem;
+  border-radius: 3px; border: 1px solid var(--border-light);
+  color: var(--text-dim); cursor: pointer; transition: all .12s;
+  letter-spacing: .04em;
+}
+.source-pill:hover { border-color: var(--accent-dim); color: var(--accent); }
+.source-pill.active { background: var(--accent); color: #0d0d0d; border-color: var(--accent); font-weight: 600; }
+
+.slot-status { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+.slot-status.filled { color: var(--accent); }
+
+.slot-toggle { font-size: 11px; color: var(--text-dim); transition: transform .2s; }
+.slot.collapsed .slot-toggle { transform: rotate(-90deg); }
+
+.slot-body { padding: .75rem; display: flex; flex-direction: column; gap: .5rem; }
+.slot.collapsed .slot-body { display: none; }
+
+.slot-label { font-family: var(--mono); font-size: 10px; color: var(--text-mid); letter-spacing: .06em; }
+
+textarea {
+  width: 100%; min-height: 120px; max-height: 200px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: var(--mono);
+  font-size: 11px; line-height: 1.65; padding: .75rem; resize: vertical; outline: none;
+  transition: border-color .15s;
+}
+textarea::placeholder { color: var(--text-dim); }
+textarea:focus { border-color: var(--accent-dim); }
+
+.clear-btn {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  background: none; border: none; cursor: pointer; padding: 0; transition: color .15s; align-self: flex-end;
+}
+.clear-btn:hover { color: var(--red); }
+
+/* PERSONA + ACTIONS */
+.persona-row { display: flex; gap: .6rem; align-items: center; }
+.persona-label { font-family: var(--mono); font-size: 10px; color: var(--text-mid); white-space: nowrap; letter-spacing: .04em; }
+.persona-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border-light);
+  border-radius: 6px; color: var(--text); font-family: var(--mono); font-size: 11px;
+  padding: .45rem .7rem; outline: none; transition: border-color .15s;
+}
+.persona-input::placeholder { color: var(--text-dim); }
+.persona-input:focus { border-color: var(--accent-dim); }
+
+.action-row { display: flex; gap: .6rem; }
+
+.run-btn {
+  flex: 1; background: var(--accent); color: #0d0d0d; border: none;
+  border-radius: var(--radius); padding: .8rem 1rem; font-family: var(--display);
+  font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: .5rem; transition: all .2s; letter-spacing: -.01em;
+}
+.run-btn:hover { background: #d4f870; transform: translateY(-1px); }
+.run-btn:disabled { background: var(--surface2); color: var(--text-dim); cursor: not-allowed; transform: none; }
+.run-btn.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-light); flex: 0 0 auto; font-size: 12px; }
+.run-btn.secondary:hover { background: var(--surface2); border-color: var(--text-mid); transform: none; }
+
+.spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; display: none; }
+.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box { background: rgba(255,92,92,.1); border: 1px solid rgba(255,92,92,.3); border-radius: var(--radius); padding: .75rem; font-family: var(--mono); font-size: 11px; color: var(--red); display: none; }
+
+.apikey-row { display: flex; flex-direction: column; gap: .4rem; }
+.apikey-label { display: flex; align-items: center; justify-content: space-between; }
+.apikey-label span { font-family: var(--mono); font-size: 10px; color: var(--text-mid); letter-spacing: .06em; }
+.apikey-label a { font-family: var(--mono); font-size: 10px; color: var(--accent-dim); text-decoration: none; }
+.apikey-label a:hover { color: var(--accent); }
+.apikey-input-wrap { display: flex; gap: .4rem; align-items: center; }
+.apikey-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border-light);
+  border-radius: 6px; color: var(--text); font-family: var(--mono); font-size: 11px;
+  padding: .45rem .7rem; outline: none; transition: border-color .15s; letter-spacing: .04em;
+}
+.apikey-input::placeholder { color: var(--text-dim); }
+.apikey-input:focus { border-color: var(--accent-dim); }
+.apikey-input.valid { border-color: var(--accent-dim); }
+.apikey-toggle { font-family: var(--mono); font-size: 10px; color: var(--text-dim); background: none; border: none; cursor: pointer; padding: .3rem; transition: color .15s; }
+.apikey-toggle:hover { color: var(--text); }
+
+/* RIGHT */
+.right-panel { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+
+.output-header { display: flex; align-items: center; justify-content: space-between; }
+.output-status { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: .08em; }
+.output-status.active { color: var(--accent); }
+
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 2rem; }
+.empty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; width: 100%; max-width: 320px; margin-bottom: .25rem; }
+.empty-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .85rem; text-align: left; }
+.empty-card-label { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .3rem; }
+.empty-card-val { font-size: 12px; font-weight: 700; color: var(--text-mid); }
+.empty-desc { font-family: var(--mono); font-size: 11px; color: var(--text-dim); line-height: 1.7; max-width: 260px; }
+
+.results { display: none; flex-direction: column; gap: 1rem; }
+.results.visible { display: flex; }
+
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; animation: fadeUp .3s ease forwards; opacity: 0; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.section-card:nth-child(1) { animation-delay: .05s; }
+.section-card:nth-child(2) { animation-delay: .1s; }
+.section-card:nth-child(3) { animation-delay: .15s; }
+.section-card:nth-child(4) { animation-delay: .2s; }
+.section-card:nth-child(5) { animation-delay: .25s; }
+.section-card:nth-child(6) { animation-delay: .3s; }
+
+.section-header { padding: .65rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .5rem; }
+.section-icon { font-size: 13px; }
+.section-label { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-mid); }
+
+.section-body { padding: 1rem; font-size: 13px; line-height: 1.75; color: var(--text); }
+.section-body strong { color: var(--accent); font-weight: 600; }
+
+.gap-item { padding: .5rem .7rem; border-left: 2px solid var(--border-light); margin-bottom: .45rem; font-size: 12px; line-height: 1.6; }
+.gap-item.high { border-color: var(--red); }
+.gap-item.med { border-color: #f0a060; }
+.gap-item.low { border-color: var(--accent-dim); }
+
+.angle-item { display: flex; gap: .7rem; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: 12px; align-items: flex-start; }
+.angle-item:last-child { border-bottom: none; padding-bottom: 0; }
+.angle-num { font-family: var(--mono); font-size: 10px; color: var(--accent); min-width: 18px; margin-top: 2px; }
+
+.copy-btn { font-family: var(--mono); font-size: 10px; color: var(--text-dim); background: none; border: 1px solid var(--border); border-radius: 4px; padding: .25rem .55rem; cursor: pointer; transition: all .15s; letter-spacing: .04em; }
+.copy-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+.source-tag { font-family: var(--mono); font-size: 9px; color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: .1rem .4rem; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">M</div>
+    <div>
+      <div class="logo-text">MarketLens</div>
+      <div class="logo-sub">B2B Marketing Intelligence</div>
+    </div>
+  </div>
+  <div class="badge">AI-POWERED</div>
+</header>
+
+<main>
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div>
+      <div class="panel-title">Input</div>
+      <div class="hero-text" style="margin-top:.4rem">Paste profiles.<br>Get <span>marketing intel.</span></div>
+    </div>
+
+    <div class="slots" id="slots">
+
+      <!-- SLOT 1 -->
+      <div class="slot" id="slot-0">
+        <div class="slot-header" onclick="toggleSlot(0)">
+          <div class="slot-left">
+            <div class="slot-source">
+              <div class="source-pill active" onclick="setSource(event,0,'YC')">YC</div>
+              <div class="source-pill" onclick="setSource(event,0,'Wellfound')">Wellfound</div>
+              <div class="source-pill" onclick="setSource(event,0,'LinkedIn')">LinkedIn</div>
+              <div class="source-pill" onclick="setSource(event,0,'Other')">Other</div>
+            </div>
+          </div>
+          <div class="slot-status" id="status-0">Empty</div>
+          <div class="slot-toggle">▾</div>
+        </div>
+        <div class="slot-body">
+          <div class="slot-label">Paste profile text</div>
+          <textarea id="text-0" placeholder="Paste company profile, job posting, or about page..." oninput="updateSlotStatus(0)"></textarea>
+          <button class="clear-btn" onclick="clearSlot(0)">✕ Clear</button>
+        </div>
+      </div>
+
+      <!-- SLOT 2 -->
+      <div class="slot collapsed" id="slot-1">
+        <div class="slot-header" onclick="toggleSlot(1)">
+          <div class="slot-left">
+            <div class="slot-source">
+              <div class="source-pill active" onclick="setSource(event,1,'YC')">YC</div>
+              <div class="source-pill" onclick="setSource(event,1,'Wellfound')">Wellfound</div>
+              <div class="source-pill" onclick="setSource(event,1,'LinkedIn')">LinkedIn</div>
+              <div class="source-pill" onclick="setSource(event,1,'Other')">Other</div>
+            </div>
+          </div>
+          <div class="slot-status" id="status-1">Empty</div>
+          <div class="slot-toggle">▾</div>
+        </div>
+        <div class="slot-body">
+          <div class="slot-label">Paste second profile (optional)</div>
+          <textarea id="text-1" placeholder="Add a second source for combined or comparative analysis..." oninput="updateSlotStatus(1)"></textarea>
+          <button class="clear-btn" onclick="clearSlot(1)">✕ Clear</button>
+        </div>
+      </div>
+
+      <!-- SLOT 3 -->
+      <div class="slot collapsed" id="slot-2">
+        <div class="slot-header" onclick="toggleSlot(2)">
+          <div class="slot-left">
+            <div class="slot-source">
+              <div class="source-pill active" onclick="setSource(event,2,'YC')">YC</div>
+              <div class="source-pill" onclick="setSource(event,2,'Wellfound')">Wellfound</div>
+              <div class="source-pill" onclick="setSource(event,2,'LinkedIn')">LinkedIn</div>
+              <div class="source-pill" onclick="setSource(event,2,'Other')">Other</div>
+            </div>
+          </div>
+          <div class="slot-status" id="status-2">Empty</div>
+          <div class="slot-toggle">▾</div>
+        </div>
+        <div class="slot-body">
+          <div class="slot-label">Paste third profile (optional)</div>
+          <textarea id="text-2" placeholder="Add a third source..." oninput="updateSlotStatus(2)"></textarea>
+          <button class="clear-btn" onclick="clearSlot(2)">✕ Clear</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="apikey-row">
+      <div class="apikey-label">
+        <span>Groq API Key</span>
+        <a href="https://console.groq.com" target="_blank">Get free key →</a>
+      </div>
+      <div class="apikey-input-wrap">
+        <input type="password" class="apikey-input" id="apiKeyInput" placeholder="gsk_..." oninput="updateKeyStatus()" />
+        <button class="apikey-toggle" onclick="toggleKeyVisibility()" id="keyToggle">show</button>
+      </div>
+    </div>
+
+    <div class="persona-row">
+      <div class="persona-label">Target persona</div>
+      <input type="text" class="persona-input" id="personaInput" placeholder="e.g. PMMs at B2B SaaS, VP Marketing, Founders" />
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="action-row">
+      <button class="run-btn" id="runBtn" onclick="runAnalysis('combined')">
+        <div class="spinner"></div>
+        <span class="btn-text">Run Combined Analysis</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="output-header">
+      <div class="panel-title">Intelligence Brief</div>
+      <div style="display:flex;gap:.6rem;align-items:center">
+        <button class="copy-btn" id="copyBtn" onclick="copyResults()" style="display:none">Copy brief</button>
+        <div class="output-status" id="outputStatus">Awaiting input</div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-grid">
+        <div class="empty-card"><div class="empty-card-label">ICP Hypothesis</div><div class="empty-card-val">Who really buys</div></div>
+        <div class="empty-card"><div class="empty-card-label">Messaging Gaps</div><div class="empty-card-val">What's missing</div></div>
+        <div class="empty-card"><div class="empty-card-label">Content Angles</div><div class="empty-card-val">5 ready to test</div></div>
+        <div class="empty-card"><div class="empty-card-label">Positioning Risk</div><div class="empty-card-val">Blind spots</div></div>
+      </div>
+      <div class="empty-desc">Paste 1–3 profiles from YC, Wellfound, or LinkedIn. Run combined analysis or individual briefs per source.</div>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+</main>
+
+<script>
+const sources = ['YC', 'YC', 'YC'];
+
+function updateKeyStatus() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  document.getElementById('apiKeyInput').classList.toggle('valid', val.startsWith('gsk_') && val.length > 20);
+}
+
+function toggleKeyVisibility() {
+  const input = document.getElementById('apiKeyInput');
+  const btn = document.getElementById('keyToggle');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = 'hide'; }
+  else { input.type = 'password'; btn.textContent = 'show'; }
+}
+
+function toggleSlot(i) {
+  const slot = document.getElementById('slot-' + i);
+  slot.classList.toggle('collapsed');
+}
+
+function setSource(e, i, name) {
+  e.stopPropagation();
+  sources[i] = name;
+  const pills = document.querySelectorAll('#slot-' + i + ' .source-pill');
+  pills.forEach(p => p.classList.toggle('active', p.textContent === name));
+}
+
+function updateSlotStatus(i) {
+  const val = document.getElementById('text-' + i).value.trim();
+  const status = document.getElementById('status-' + i);
+  const slot = document.getElementById('slot-' + i);
+  if (val.length > 20) {
+    status.textContent = 'Ready';
+    status.className = 'slot-status filled';
+    slot.classList.add('has-content');
+  } else {
+    status.textContent = 'Empty';
+    status.className = 'slot-status';
+    slot.classList.remove('has-content');
+  }
+  updateActionRow();
+}
+
+function clearSlot(i) {
+  document.getElementById('text-' + i).value = '';
+  updateSlotStatus(i);
+}
+
+function updateActionRow() {
+  const filled = [0,1,2].filter(i => document.getElementById('text-' + i).value.trim().length > 20);
+  const row = document.querySelector('.action-row');
+  const btn = document.getElementById('runBtn');
+
+  if (filled.length === 0) {
+    btn.querySelector('.btn-text').textContent = 'Run Combined Analysis';
+    row.innerHTML = `<button class="run-btn" id="runBtn" onclick="runAnalysis('combined')">
+      <div class="spinner"></div><span class="btn-text">Run Combined Analysis</span></button>`;
+  } else if (filled.length === 1) {
+    row.innerHTML = `<button class="run-btn" id="runBtn" onclick="runAnalysis('combined')">
+      <div class="spinner"></div><span class="btn-text">Analyse ${sources[filled[0]]} Profile</span></button>`;
+  } else {
+    let btns = `<button class="run-btn" id="runBtn" onclick="runAnalysis('combined')">
+      <div class="spinner"></div><span class="btn-text">Combined Analysis</span></button>`;
+    filled.forEach(i => {
+      btns += `<button class="run-btn secondary" onclick="runAnalysis('single',${i})">${sources[i]} Only</button>`;
+    });
+    row.innerHTML = btns;
+  }
+}
+
+async function runAnalysis(mode, slotIndex) {
+  const filled = [0,1,2].filter(i => document.getElementById('text-' + i).value.trim().length > 20);
+
+  let profilesText = '';
+  let slotsToUse = mode === 'single' ? [slotIndex] : filled;
+
+  if (slotsToUse.length === 0) { showError('Paste at least one profile to analyse.'); return; }
+
+  slotsToUse.forEach(i => {
+    const txt = document.getElementById('text-' + i).value.trim();
+    profilesText += `\n--- SOURCE: ${sources[i]} ---\n${txt}\n`;
+  });
+
+  const persona = document.getElementById('personaInput').value.trim();
+  const personaLine = persona ? `Target persona: ${persona}` : 'Infer the most likely target persona from the profiles.';
+  const modeNote = slotsToUse.length > 1
+    ? 'Multiple profiles provided — synthesize them into one combined intelligence brief. Note where profiles reinforce or contradict each other.'
+    : 'Single profile provided.';
+
+  // Disable all run buttons
+  document.querySelectorAll('.run-btn').forEach(b => { b.disabled = true; b.classList.add('loading'); });
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('copyBtn').style.display = 'none';
+  document.getElementById('outputStatus').textContent = 'Analysing...';
+  document.getElementById('outputStatus').className = 'output-status active';
+  document.getElementById('errorBox').style.display = 'none';
+
+  const prompt = `You are a senior B2B marketing strategist. Analyse these company profiles and produce a sharp, opinionated marketing intelligence brief.
+
+${modeNote}
+${personaLine}
+
+Profiles:
+${profilesText}
+
+Return ONLY valid JSON with exactly these keys:
+
+{
+  "company_snapshot": "2-3 sentence summary of what they do, who they serve, stage, and what makes them interesting or different. If multiple profiles, synthesise into one view.",
+  "icp_hypothesis": {
+    "primary": "The most likely buyer — job title, company type, size, and the specific pain that drives them to look for this solution",
+    "secondary": "A secondary persona worth testing",
+    "who_it_is_not": "Who this is clearly NOT for, even if they might think it is"
+  },
+  "messaging_gaps": [
+    {"severity": "high", "gap": "Specific messaging weakness based on the profiles"},
+    {"severity": "high", "gap": "Another gap"},
+    {"severity": "med", "gap": "Medium severity gap"},
+    {"severity": "med", "gap": "Another medium gap"},
+    {"severity": "low", "gap": "Lower priority gap"}
+  ],
+  "positioning_risks": "2-3 sentences on the biggest positioning blind spots — where they could be confused with competitors or lose deals on messaging alone",
+  "content_angles": [
+    "Specific ready-to-execute content angle #1 — tied to actual product and ICP pain",
+    "Content angle #2",
+    "Content angle #3",
+    "Content angle #4",
+    "Content angle #5"
+  ],
+  "one_thing": "The single most important marketing move they should make in the next 30 days, and why"
+}
+
+Be direct, opinionated, specific. No generic advice. Every insight tied to the actual profiles.`;
+
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  if (!apiKey) { showError('Please enter your Groq API key. Get one free at console.groq.com'); document.querySelectorAll('.run-btn').forEach(b => { b.disabled = false; b.classList.remove('loading'); }); updateActionRow(); return; }
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1500,
+        messages: [
+          { role: 'system', content: 'You are a senior B2B marketing strategist. Always respond with valid JSON only — no preamble, no markdown fences.' },
+          { role: 'user', content: prompt }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'API error');
+
+    const raw = data.choices?.[0]?.message?.content || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const intel = JSON.parse(clean);
+    renderResults(intel, slotsToUse.map(i => sources[i]).join(' + '));
+
+  } catch (err) {
+    showError('Something went wrong: ' + err.message);
+  } finally {
+    document.querySelectorAll('.run-btn').forEach(b => { b.disabled = false; b.classList.remove('loading'); });
+    updateActionRow();
+  }
+}
+
+function renderResults(intel, sourceLabel) {
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+
+  const cards = [
+    { icon: '🏢', label: 'Company Snapshot', html: `<div class="section-body">${intel.company_snapshot}</div>` },
+    {
+      icon: '🎯', label: 'ICP Hypothesis',
+      html: `<div class="section-body">
+        <div style="margin-bottom:.75rem"><strong>Primary buyer</strong><br>${intel.icp_hypothesis.primary}</div>
+        <div style="margin-bottom:.75rem"><strong>Secondary persona</strong><br>${intel.icp_hypothesis.secondary}</div>
+        <div><strong>Not a fit</strong><br>${intel.icp_hypothesis.who_it_is_not}</div>
+      </div>`
+    },
+    {
+      icon: '⚠️', label: 'Messaging Gaps',
+      html: `<div class="section-body" style="padding:.75rem 1rem">${intel.messaging_gaps.map(g =>
+        `<div class="gap-item ${g.severity}">${g.gap}</div>`).join('')}</div>`
+    },
+    { icon: '🔺', label: 'Positioning Risks', html: `<div class="section-body">${intel.positioning_risks}</div>` },
+    {
+      icon: '💡', label: '5 Content Angles to Test',
+      html: `<div class="section-body" style="padding:.75rem 1rem">${intel.content_angles.map((a, i) =>
+        `<div class="angle-item"><div class="angle-num">0${i+1}</div><div>${a}</div></div>`).join('')}</div>`
+    },
+    {
+      icon: '⚡', label: 'The One Thing',
+      html: `<div class="section-body" style="background:rgba(200,240,96,.05);border-left:3px solid var(--accent);padding:1rem">${intel.one_thing}</div>`
+    }
+  ];
+
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'section-card';
+    el.innerHTML = `
+      <div class="section-header">
+        <span class="section-icon">${card.icon}</span>
+        <span class="section-label">${card.label}</span>
+        ${card === cards[0] ? `<span class="source-tag">${sourceLabel}</span>` : ''}
+      </div>
+      ${card.html}`;
+    container.appendChild(el);
+  });
+
+  container.classList.add('visible');
+  document.getElementById('outputStatus').textContent = 'Brief ready';
+  document.getElementById('outputStatus').className = 'output-status';
+  document.getElementById('copyBtn').style.display = 'block';
+}
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = msg;
+  box.style.display = 'block';
+  document.getElementById('outputStatus').textContent = 'Error';
+  document.getElementById('outputStatus').className = 'output-status';
+  document.getElementById('emptyState').style.display = 'flex';
+}
+
+function copyResults() {
+  const cards = document.querySelectorAll('.section-card');
+  let text = 'MARKETLENS — MARKETING INTELLIGENCE BRIEF\n\n';
+  cards.forEach(card => {
+    const label = card.querySelector('.section-label').textContent;
+    const body = card.querySelector('.section-body').textContent.trim();
+    text += `${label.toUpperCase()}\n${body}\n\n`;
+  });
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy brief', 2000);
+  });
+}
+</script>
+</body>
+</html>
